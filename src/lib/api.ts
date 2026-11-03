@@ -1,6 +1,8 @@
 import type {
   AccessCheck,
   AccessLog,
+  Brand,
+  Catalog,
   EnterResult,
   ExitResult,
   ExitToken,
@@ -107,6 +109,9 @@ export const listProducts = () => request<Product[]>("/products")
 export const getProductByBarcode = (barcode: string) =>
   request<Product>(`/products/barcode/${encodeURIComponent(barcode)}`)
 
+/** Catálogo de apoio do cadastro: categorias, marcas, embalagens, unidades. */
+export const getCatalog = () => request<Catalog>("/catalog")
+
 // ── Acesso ────────────────────────────────────────────────────────────────
 
 export const checkAccess = (cpf: string) =>
@@ -144,6 +149,18 @@ export const createSalePixCharge = (id: number) =>
   request<PixCharge>(`/sales/${id}/pix`, { method: "POST" })
 
 // ── Admin (requer x-admin-token) ──────────────────────────────────────────
+
+/** Lista completa (inclui produtos inativos); o público só vê os ativos. */
+export const adminListProducts = () =>
+  request<Product[]>("/admin/products", { admin: true })
+
+/** Cria a marca ou devolve a existente (comparação por slug). */
+export const adminCreateBrand = (name: string) =>
+  request<Brand>("/admin/brands", {
+    method: "POST",
+    body: { name },
+    admin: true,
+  })
 
 export const adminCreateProduct = (data: ProductInput) =>
   request<Product>("/admin/products", { method: "POST", body: data, admin: true })

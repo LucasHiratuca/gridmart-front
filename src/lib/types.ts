@@ -1,16 +1,84 @@
 // Tipos espelhando as respostas da API (gridmart-api).
 
+/** Unidades de conteúdo aceitas pela API. */
+export const PRODUCT_UNITS = ["un", "ml", "l", "g", "kg"] as const
+export type ProductUnit = (typeof PRODUCT_UNITS)[number]
+
+/** Departamento (parentId null) ou tipo de produto (folha). */
+export type Category = {
+  id: number
+  parentId: number | null
+  name: string
+  slug: string
+  sortOrder: number
+}
+
+export type Brand = {
+  id: number
+  name: string
+  slug: string
+  isActive: boolean
+}
+
+export type Packaging = {
+  id: number
+  name: string
+  slug: string
+  sortOrder: number
+}
+
+export type CatalogUnit = {
+  value: ProductUnit
+  label: string
+}
+
+/** Catálogo de apoio do cadastro (GET /catalog). */
+export type Catalog = {
+  categories: Category[]
+  leaves: Category[]
+  brands: Brand[]
+  packagings: Packaging[]
+  units: CatalogUnit[]
+}
+
 export type Product = {
   id: number
   barcode: string
   name: string
   priceInCents: number
+  categoryId: number | null
+  brandId: number | null
+  packagingId: number | null
+  /** Sabor/linha: "Original", "Zero", "Ao Leite". */
+  variant: string | null
+  /** Conteúdo em texto, com vírgula: "350", "1,5". */
+  netContent: string | null
+  unit: ProductUnit | null
+  /** 6 -> "Pack 6x" no começo do nome. */
+  packQty: number | null
+  isActive: boolean
+  /** Nomes resolvidos pelos joins (só leitura). */
+  categoryName: string | null
+  brandName: string | null
+  packagingName: string | null
 }
 
+/**
+ * Campos aceitos no cadastro. Quando `categoryId` + `brandId` vêm preenchidos,
+ * a API gera o `name` no padrão; senão usa `name` como fallback normalizado.
+ */
 export type ProductInput = {
   barcode: string
-  name: string
+  name?: string | null
   priceInCents: number
+  categoryId?: number | null
+  brandId?: number | null
+  packagingId?: number | null
+  variant?: string | null
+  netContent?: string | null
+  unit?: ProductUnit | null
+  packQty?: number | null
+  isActive?: boolean
 }
 
 export type SaleStatus = "PENDING" | "PAID" | "EXPIRED"
