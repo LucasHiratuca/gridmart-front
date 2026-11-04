@@ -27,6 +27,16 @@ export type Packaging = {
   sortOrder: number
 }
 
+/** Grupo de preço: produtos vinculados compartilham o mesmo valor. */
+export type PriceGroup = {
+  id: number
+  name: string
+  priceInCents: number
+  updatedAt: string
+  /** Quantos produtos estão vinculados (só na listagem admin). */
+  productCount?: number
+}
+
 export type CatalogUnit = {
   value: ProductUnit
   label: string
@@ -45,7 +55,13 @@ export type Product = {
   id: number
   barcode: string
   name: string
+  /** Preço efetivo (do grupo de preço, quando houver). */
   priceInCents: number
+  /** Preço próprio do produto (fallback quando não está em grupo). */
+  ownPriceInCents: number
+  priceGroupId: number | null
+  priceGroupName: string | null
+  priceGroupPriceInCents: number | null
   categoryId: number | null
   brandId: number | null
   packagingId: number | null
@@ -71,6 +87,8 @@ export type ProductInput = {
   barcode: string
   name?: string | null
   priceInCents: number
+  /** Ao vincular a um grupo, o preço efetivo passa a ser o do grupo. */
+  priceGroupId?: number | null
   categoryId?: number | null
   brandId?: number | null
   packagingId?: number | null

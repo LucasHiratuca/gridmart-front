@@ -7,6 +7,7 @@ import {
   Receipt,
   ScrollText,
   ShieldCheck,
+  Tags,
   Users,
 } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
@@ -218,6 +219,7 @@ function GateShell({ children }: { children: React.ReactNode }) {
 
 const NAV_ITEMS = [
   { to: "/admin/produtos", label: "Produtos", icon: Package },
+  { to: "/admin/precos", label: "Preços", icon: Tags },
   { to: "/admin/vendas", label: "Vendas", icon: Receipt },
   { to: "/admin/visitas", label: "Visitas", icon: DoorOpen },
   { to: "/admin/usuarios", label: "Clientes", icon: Users },

@@ -7,6 +7,7 @@ import type {
   ExitResult,
   ExitToken,
   PixCharge,
+  PriceGroup,
   Product,
   ProductInput,
   RegisterResult,
@@ -161,6 +162,51 @@ export const adminCreateBrand = (name: string) =>
     body: { name },
     admin: true,
   })
+
+// ── Grupos de preço ──────────────────────────────────────────────────────
+
+export const adminListPriceGroups = () =>
+  request<PriceGroup[]>("/admin/price-groups", { admin: true })
+
+export const adminCreatePriceGroup = (data: {
+  name: string
+  priceInCents: number
+}) =>
+  request<PriceGroup>("/admin/price-groups", {
+    method: "POST",
+    body: data,
+    admin: true,
+  })
+
+export const adminUpdatePriceGroup = (
+  id: number,
+  data: Partial<{ name: string; priceInCents: number }>,
+) =>
+  request<PriceGroup>(`/admin/price-groups/${id}`, {
+    method: "PUT",
+    body: data,
+    admin: true,
+  })
+
+export const adminDeletePriceGroup = (id: number) =>
+  request<PriceGroup>(`/admin/price-groups/${id}`, {
+    method: "DELETE",
+    admin: true,
+  })
+
+/** Define a seleção final de produtos do grupo (checkbox do admin). */
+export const adminSyncPriceGroupProducts = (
+  id: number,
+  productIds: number[],
+) =>
+  request<{ id: number; productCount: number }>(
+    `/admin/price-groups/${id}/products`,
+    {
+      method: "PUT",
+      body: { productIds },
+      admin: true,
+    },
+  )
 
 export const adminCreateProduct = (data: ProductInput) =>
   request<Product>("/admin/products", { method: "POST", body: data, admin: true })

@@ -7,6 +7,7 @@ import {
   Pencil,
   Plus,
   Search,
+  Tags,
   Trash2,
 } from "lucide-react"
 import {
@@ -14,6 +15,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query"
+import { Link } from "react-router"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -50,6 +52,7 @@ import {
   adminCreateBrand,
   adminCreateProduct,
   adminDeleteProduct,
+  adminListPriceGroups,
   adminListProducts,
   adminUpdateProduct,
   getCatalog,
@@ -61,7 +64,7 @@ import {
   normalizeText,
   type ProductUnit,
 } from "@/lib/product-name"
-import type { Catalog, Product } from "@/lib/types"
+import type { Catalog, PriceGroup, Product } from "@/lib/types"
 import { PageHeader } from "./page-header"
 import {
   TableEmptyRow,
@@ -120,6 +123,10 @@ export function AdminProductsPage() {
     queryKey: ["admin-products"],
     queryFn: adminListProducts,
   })
+  const priceGroupsQuery = useQuery({
+    queryKey: ["price-groups"],
+    queryFn: adminListPriceGroups,
+  })
 
   const groups = useMemo(
     () => groupCategories(catalogQuery.data),
@@ -157,6 +164,15 @@ export function AdminProductsPage() {
         title="Produtos"
         description="Cadastro guiado: código, grupo, marca e tamanho. O nome é montado no padrão da loja."
       >
+        <Button variant="outline" asChild>
+          <Link to="/admin/precos">
+            <Tags className="size-4" />
+            Grupos de preço
+            {priceGroupsQuery.data?.length ? (
+              <Badge variant="secondary">{priceGroupsQuery.data.length}</Badge>
+            ) : null}
+          </Link>
+        </Button>
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="size-4" />
           Novo produto
@@ -269,7 +285,17 @@ export function AdminProductsPage() {
                       {product.brandName ?? "—"}
                     </TableCell>
                     <TableCell className="text-right tabular-nums">
-                      {formatBRL(product.priceInCents)}
+                      <div className="flex flex-col items-end gap-1">
+                        <span>{formatBRL(product.priceInCents)}</span>
+                        {product.priceGroupName ? (
+                          <Badge
+                            variant="secondary"
+                            className="text-[10px] font-normal"
+                          >
+                            {product.priceGroupName}
+                          </Badge>
+                        ) : null}
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-1">
@@ -351,6 +377,7 @@ type Draft = {
   unit: ProductUnit
   packQty: string
   price: string
+  priceGroupId: string
   isActive: boolean
 }
 
@@ -368,9 +395,58 @@ function draftFromProduct(product?: Product): Draft {
     netContent: product?.netContent ?? "",
     unit: product?.unit ?? "un",
     packQty: product?.packQty ? String(product.packQty) : "1",
-    price: product ? toPriceInput(product.priceInCents) : "",
+    // Preço próprio (não o efetivo): ao sair do grupo ele volta a valer.
+    price: product ? toPriceInput(product.ownPriceInCents) : "",
+    priceGroupId: product?.priceGroupId ? String(product.priceGroupId) : "",
     isActive: product?.isActive ?? true,
   }
+}
+
+/** Seletor de grupo de preço usado no formulário do produto. */
+function PriceGroupField({
+  value,
+  onChange,
+  groups,
+}: {
+  value: string
+  onChange: (value: string) => void
+  groups: PriceGroup[]
+}) {
+  const selected = groups.find((group) => String(group.id) === value)
+
+  return (
+    <div className="grid gap-2">
+      <Label>Grupo de preço (opcional)</Label>
+      <Select
+        value={value || "none"}
+        onValueChange={(next) => onChange(next === "none" ? "" : next)}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Sem grupo (preço próprio)" />
+        </SelectTrigger>
+        <SelectContent position="popper">
+          <SelectItem value="none">Sem grupo (preço próprio)</SelectItem>
+          {groups.map((group) => (
+            <SelectItem key={group.id} value={String(group.id)}>
+              {group.name} — {formatBRL(group.priceInCents)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <p className="text-muted-foreground text-xs">
+        {selected ? (
+          <>
+            Preço definido pelo grupo ({formatBRL(selected.priceInCents)}). Mudar
+            o grupo altera os {selected.productCount ?? 0} produto(s) vinculados.
+          </>
+        ) : groups.length === 0 ? (
+          "Nenhum grupo criado ainda. Use “Grupos de preço” na listagem para criar."
+        ) : (
+          "Use quando vários produtos compartilham o mesmo preço. O valor é alterado em um lugar só."
+        )}
+      </p>
+    </div>
+  )
 }
 
 function ProductFormDialog({
@@ -390,11 +466,20 @@ function ProductFormDialog({
     queryKey: ["admin-products"],
     queryFn: adminListProducts,
   })
+  const priceGroupsQuery = useQuery({
+    queryKey: ["price-groups"],
+    queryFn: adminListPriceGroups,
+  })
   const catalog = catalogQuery.data
+  const priceGroups = priceGroupsQuery.data ?? []
 
   const [draft, setDraft] = useState<Draft>(() => draftFromProduct(product))
   const [stepIndex, setStepIndex] = useState(0)
   const [error, setError] = useState<string | null>(null)
+
+  const selectedPriceGroup = priceGroups.find(
+    (group) => String(group.id) === draft.priceGroupId,
+  )
 
   const steps = draft.manual ? MANUAL_STEPS : STRUCTURED_STEPS
   const step = steps[Math.min(stepIndex, steps.length - 1)]
@@ -459,13 +544,20 @@ function ProductFormDialog({
 
   const saveMutation = useMutation({
     mutationFn: () => {
-      const priceInCents = parseBRLToCents(draft.price.trim()) ?? 0
+      const priceInCents =
+        selectedPriceGroup?.priceInCents ??
+        parseBRLToCents(draft.price.trim()) ??
+        0
+      const priceGroupId = draft.priceGroupId
+        ? Number(draft.priceGroupId)
+        : null
 
       const payload = draft.manual
         ? {
             barcode: draft.barcode.trim(),
             name: normalizeProductName(draft.name),
             priceInCents,
+            priceGroupId,
             categoryId: null,
             brandId: null,
             packagingId: null,
@@ -479,6 +571,7 @@ function ProductFormDialog({
             barcode: draft.barcode.trim(),
             name: preview,
             priceInCents,
+            priceGroupId,
             categoryId: Number(draft.categoryId),
             brandId: Number(draft.brandId),
             packagingId: draft.packagingId
@@ -499,6 +592,7 @@ function ProductFormDialog({
       toast.success(isEditing ? "Produto atualizado" : "Produto criado")
       queryClient.invalidateQueries({ queryKey: ["admin-products"] })
       queryClient.invalidateQueries({ queryKey: ["products"] })
+      queryClient.invalidateQueries({ queryKey: ["price-groups"] })
       onOpenChange(false)
     },
     onError: (mutationError) => {
@@ -526,10 +620,12 @@ function ProductFormDialog({
       return "Escolha a marca (ou crie uma nova)."
     }
     if (step.key === "details" || step.key === "price") {
-      const cents = parseBRLToCents(draft.price.trim())
-      if (!draft.price.trim()) return "Informe o preço."
-      if (cents === null) return "Preço inválido."
-      if (cents <= 0) return "O preço deve ser maior que zero."
+      if (!selectedPriceGroup) {
+        const cents = parseBRLToCents(draft.price.trim())
+        if (!draft.price.trim()) return "Informe o preço."
+        if (cents === null) return "Preço inválido."
+        if (cents <= 0) return "O preço deve ser maior que zero."
+      }
     }
     if (step.key === "details" && !preview) {
       return "Preencha os dados do produto para gerar o nome."
@@ -842,6 +938,12 @@ function ProductFormDialog({
                 </div>
               </div>
 
+              <PriceGroupField
+                value={draft.priceGroupId}
+                onChange={(value) => set("priceGroupId", value)}
+                groups={priceGroups}
+              />
+
               <div className="grid grid-cols-2 gap-2">
                 <div className="grid gap-2">
                   <Label htmlFor="product-pack">Qtd. no pack</Label>
@@ -863,7 +965,12 @@ function ProductFormDialog({
                     inputMode="decimal"
                     placeholder="18,90"
                     autoComplete="off"
-                    value={draft.price}
+                    disabled={Boolean(selectedPriceGroup)}
+                    value={
+                      selectedPriceGroup
+                        ? toPriceInput(selectedPriceGroup.priceInCents)
+                        : draft.price
+                    }
                     onChange={(event) => set("price", event.target.value)}
                   />
                 </div>
@@ -876,18 +983,31 @@ function ProductFormDialog({
           ) : null}
 
           {step.key === "price" ? (
-            <div className="grid gap-2">
-              <Label htmlFor="manual-price">Preço (R$)</Label>
-              <Input
-                id="manual-price"
-                inputMode="decimal"
-                placeholder="18,90"
-                autoComplete="off"
-                autoFocus
-                disabled={saveMutation.isPending}
-                value={draft.price}
-                onChange={(event) => set("price", event.target.value)}
+            <div className="grid gap-4">
+              <PriceGroupField
+                value={draft.priceGroupId}
+                onChange={(value) => set("priceGroupId", value)}
+                groups={priceGroups}
               />
+              <div className="grid gap-2">
+                <Label htmlFor="manual-price">Preço (R$)</Label>
+                <Input
+                  id="manual-price"
+                  inputMode="decimal"
+                  placeholder="18,90"
+                  autoComplete="off"
+                  autoFocus
+                  disabled={
+                    saveMutation.isPending || Boolean(selectedPriceGroup)
+                  }
+                  value={
+                    selectedPriceGroup
+                      ? toPriceInput(selectedPriceGroup.priceInCents)
+                      : draft.price
+                  }
+                  onChange={(event) => set("price", event.target.value)}
+                />
+              </div>
             </div>
           ) : null}
 
