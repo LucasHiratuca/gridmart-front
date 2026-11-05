@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AccessPage } from "@/features/access/AccessPage"
 import { AdminLayout } from "@/features/admin/AdminLayout"
+import { AdminCategoriesPage } from "@/features/admin/AdminCategoriesPage"
 import { AdminLogsPage } from "@/features/admin/AdminLogsPage"
 import { AdminPriceGroupsPage } from "@/features/admin/AdminPriceGroupsPage"
 import { AdminProductsPage } from "@/features/admin/AdminProductsPage"
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Navigate to="produtos" replace />} />
               <Route path="produtos" element={<AdminProductsPage />} />
+              <Route path="categorias" element={<AdminCategoriesPage />} />
               <Route path="precos" element={<AdminPriceGroupsPage />} />
               <Route path="vendas" element={<AdminSalesPage />} />
               <Route path="visitas" element={<AdminVisitsPage />} />

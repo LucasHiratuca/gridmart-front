@@ -13,6 +13,18 @@ export type Category = {
   sortOrder: number
 }
 
+/** Linha da listagem admin: categoria + contagem de produtos vinculados. */
+export type AdminCategory = Category & {
+  productCount: number
+}
+
+export type CategoryInput = {
+  name: string
+  /** null/ausente = departamento (raiz); id = tipo dentro do departamento. */
+  parentId?: number | null
+  sortOrder?: number
+}
+
 export type Brand = {
   id: number
   name: string

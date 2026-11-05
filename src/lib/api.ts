@@ -1,8 +1,11 @@
 import type {
   AccessCheck,
   AccessLog,
+  AdminCategory,
   Brand,
   Catalog,
+  Category,
+  CategoryInput,
   EnterResult,
   ExitResult,
   ExitToken,
@@ -160,6 +163,34 @@ export const adminCreateBrand = (name: string) =>
   request<Brand>("/admin/brands", {
     method: "POST",
     body: { name },
+    admin: true,
+  })
+
+// ── Categorias (departamento → tipo) ─────────────────────────────────────
+
+export const adminListCategories = () =>
+  request<AdminCategory[]>("/admin/categories", { admin: true })
+
+export const adminCreateCategory = (data: CategoryInput) =>
+  request<Category>("/admin/categories", {
+    method: "POST",
+    body: data,
+    admin: true,
+  })
+
+export const adminUpdateCategory = (
+  id: number,
+  data: Partial<CategoryInput>,
+) =>
+  request<Category>(`/admin/categories/${id}`, {
+    method: "PUT",
+    body: data,
+    admin: true,
+  })
+
+export const adminDeleteCategory = (id: number) =>
+  request<Category>(`/admin/categories/${id}`, {
+    method: "DELETE",
     admin: true,
   })
 

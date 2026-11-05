@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import {
   DoorOpen,
+  FolderTree,
   KeyRound,
   Loader2,
   Package,
@@ -219,6 +220,7 @@ function GateShell({ children }: { children: React.ReactNode }) {
 
 const NAV_ITEMS = [
   { to: "/admin/produtos", label: "Produtos", icon: Package },
+  { to: "/admin/categorias", label: "Categorias", icon: FolderTree },
   { to: "/admin/precos", label: "Preços", icon: Tags },
   { to: "/admin/vendas", label: "Vendas", icon: Receipt },
   { to: "/admin/visitas", label: "Visitas", icon: DoorOpen },
