@@ -7,7 +7,7 @@ import { cn } from "cn"
  */
 const LOGO_SRC = {
   full: "/brand/logo_longa.png",
-  symbol: "/brand/logo.png",
+  symbol: "/brand/logo-256.png",
 } as const
 
 type BrandLogoProps = {
