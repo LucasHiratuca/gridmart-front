@@ -6,6 +6,7 @@ import {
   ShieldCheck,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { BrandLogo } from "@/components/brand-logo"
 import {
   Card,
   CardContent,
@@ -51,9 +52,7 @@ export function HomePage() {
       <header className="border-border/60 bg-background border-b">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg font-bold">
-              G
-            </span>
+            <BrandLogo className="h-11" />
             <span className="text-lg font-semibold tracking-tight">
               GridMart
             </span>

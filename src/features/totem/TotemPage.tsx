@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react"
 import { Link } from "react-router"
 import { useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
+import { BrandLogo } from "@/components/brand-logo"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -205,9 +206,7 @@ export function TotemPage() {
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <Link to="/" className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg font-bold">
-                G
-              </span>
+              <BrandLogo className="h-9" />
               <span className="font-semibold tracking-tight">GridMart</span>
               <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs font-medium">
                 totem

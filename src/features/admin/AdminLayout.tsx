@@ -13,6 +13,7 @@ import {
 } from "lucide-react"
 import { useQueryClient } from "@tanstack/react-query"
 import { NavLink, Outlet } from "react-router"
+import { BrandLogo } from "@/components/brand-logo"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -206,9 +207,7 @@ function GateShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-muted/40 text-foreground flex min-h-svh flex-col items-center justify-center gap-6 px-4">
       <div className="flex items-center gap-2">
-        <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg font-bold">
-          G
-        </span>
+        <BrandLogo className="h-12" />
         <span className="text-lg font-semibold tracking-tight">GridMart</span>
       </div>
       {children}
@@ -250,9 +249,7 @@ function AdminShell({
         <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
           <div className="flex h-14 items-center justify-between gap-3">
             <NavLink to="/" className="flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-md text-sm font-bold">
-                G
-              </span>
+              <BrandLogo className="h-8" />
               <span className="font-semibold tracking-tight">GridMart</span>
               <span className="bg-muted text-muted-foreground rounded px-1.5 py-0.5 text-xs font-medium">
                 admin

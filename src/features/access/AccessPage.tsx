@@ -10,6 +10,7 @@ import {
 } from "lucide-react"
 import { Link, useSearchParams } from "react-router"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { BrandLogo } from "@/components/brand-logo"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -187,9 +188,7 @@ export function AccessPage() {
       <header className="border-border/60 bg-background border-b">
         <div className="mx-auto flex w-full max-w-md items-center justify-between px-4 py-3">
           <Link to="/" className="flex items-center gap-2">
-            <span className="bg-primary text-primary-foreground flex size-8 items-center justify-center rounded-lg font-bold">
-              G
-            </span>
+            <BrandLogo className="h-9" />
             <span className="font-semibold tracking-tight">GridMart</span>
           </Link>
           <Button variant="ghost" size="sm" asChild>
