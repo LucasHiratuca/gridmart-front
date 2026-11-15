@@ -108,3 +108,43 @@ Com as adições dos últimos 2 dias, o painel administrativo passou a contempla
 | `/admin/visitas` | Admin | Estável | Controle de clientes em loja e encerramento de visitas |
 | `/admin/usuarios` | Admin | Estável | Base de clientes e controle de bloqueio |
 | `/admin/auditoria` | Admin | Estável | Logs de eventos de porta (entrada/saída e autorização) |
+
+---
+
+## 6. 📋 Relatório de Reunião de Acompanhamento (Projeto GridMart)
+
+> **Tipo de Reunião:** Apresentação e Acompanhamento do Desenvolvimento  
+> **Participantes:** Equipe de desenvolvimento e responsável pelo projeto.
+
+### 🎯 Objetivo da Reunião
+Apresentar ao responsável pelo projeto o andamento do desenvolvimento do GridMart, demonstrando as funcionalidades já implementadas, a estrutura atual do sistema e o que ainda precisa ser desenvolvido para que a solução funcione de maneira completa.
+
+### 🛒 Apresentação do Projeto
+Apresentação da solução de loja autônoma sem necessidade de atendente durante as compras, destacando:
+- Cadastro e identificação de clientes por CPF;
+- Controle de entrada e saída da loja;
+- Consulta de produtos e leitura de códigos de barras;
+- Montagem do carrinho de compras e processamento de vendas;
+- Pagamentos via Pix com integração Mercado Pago;
+- Painel administrativo de produtos, vendas, clientes e acessos.
+
+### 🌐 Situação Atual do Desenvolvimento
+- **Arquitetura em Produção na Cloudflare:** Bun, Hono, Cloudflare Workers, Cloudflare D1, Drizzle ORM e Zod.
+- **API Ativa:** Gerenciando clientes, controle de visitas, produtos, vendas e confirmação de pagamentos Pix.
+
+### ⚠️ Pontos que Ainda Precisam ser Desenvolvidos
+- **Comunicação de Hardware (ESP32):** O software está funcional, porém a integração física do ESP32 responsável pelo acionamento do relé da porta ainda não está integrada. O sistema depende dessa finalização física para operar como loja 100% autônoma.
+
+### 👥 Atribuições e Apresentações por Integrante na Reunião
+* **Mateus dos Santos Pereira (Back-End):** Apresentação da arquitetura e hospedagem da API na Cloudflare (Workers, Hono, D1, Drizzle ORM) e demonstração das regras de negócio de visitas, autenticação e cadastro de clientes por CPF.
+* **Felipe Takayuki Tanaka Takahashi (Back-End):** Demonstração do processamento de vendas, integração de pagamento Pix com Mercado Pago e detalhamento técnico do estado da comunicação pendente com o ESP32 para abertura física da porta.
+* **Paulo Henrique Domingues Antunes (Front-End):** Demonstração da interface do cliente (Kiosk/Totem): leitura de código de barras, montagem de carrinho e o checkout com exibição do QR Code Pix.
+* **Felipe Yuzo Tanaka Shida (Front-End):** Apresentação do Painel Administrativo de gestão: catálogo de produtos com assistente guiado, monitoramento de vendas, clientes e controle de acessos.
+* **Lucas Tetsuya Hiratuca (Front-End / Documentação):** Introdução e contextualização da reunião ao responsável pelo projeto, condução da pauta, elaboração da ata e consolidação do relatório de reunião com as pendências de hardware e próximas etapas.
+
+### 📌 Próximas Etapas Acordadas
+1. Desenvolver e integrar o hardware ao sistema;
+2. Implementar a comunicação entre o ESP32 e a API;
+3. Integrar o controle físico de abertura e fechamento da porta;
+4. Realizar testes do fluxo completo (entrada -> compra -> pagamento -> saída);
+5. Validar o funcionamento conjunto dos componentes de software e hardware.
